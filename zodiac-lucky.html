@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" />
+  <title>今日幸运生肖开奖台</title>
+  <style>
+    :root {
+      --gold: #f4d28a;
+      --gold-deep: #c6973a;
+      --vermillion: #9f2f22;
+      --ink: #2f2012;
+      --panel: rgba(56, 23, 12, 0.66);
+      --text: #fff1cf;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% -15%, rgba(255, 213, 138, 0.3), transparent 40%),
+        radial-gradient(circle at 18% 18%, rgba(143, 35, 23, 0.42), transparent 42%),
+        radial-gradient(circle at 84% 76%, rgba(102, 28, 19, 0.35), transparent 45%),
+        linear-gradient(160deg, #2a140d 0%, #3f1a10 42%, #240f0a 100%);
+    }
+
+    .aurora {
+      position: fixed;
+      inset: -20%;
+      filter: blur(72px);
+      pointer-events: none;
+      animation: float 10s ease-in-out infinite alternate;
+      background:
+        radial-gradient(circle at 28% 28%, rgba(255, 201, 103, 0.3), transparent 40%),
+        radial-gradient(circle at 70% 24%, rgba(191, 74, 49, 0.24), transparent 44%),
+        radial-gradient(circle at 58% 72%, rgba(245, 224, 166, 0.2), transparent 45%);
+    }
+
+    .zen-clouds {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.4;
+      background:
+        radial-gradient(120px 48px at 12% 22%, rgba(255, 232, 188, 0.18), transparent 70%),
+        radial-gradient(160px 56px at 82% 30%, rgba(255, 228, 179, 0.16), transparent 70%),
+        radial-gradient(150px 54px at 24% 76%, rgba(255, 234, 197, 0.14), transparent 70%);
+      animation: cloudDrift 18s linear infinite alternate;
+    }
+
+    .blessing-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.42;
+    }
+
+    .blessing-bg::before {
+      content: "佛光普照";
+      position: absolute;
+      left: 7vw;
+      top: 12vh;
+      font-size: clamp(34px, 6vw, 72px);
+      letter-spacing: 6px;
+      font-family: "STKaiti", "KaiTi", serif;
+      color: rgba(255, 228, 168, 0.2);
+      text-shadow: 0 0 20px rgba(255, 205, 122, 0.24);
+      transform: rotate(-10deg);
+    }
+
+    .blessing-bg::after {
+      content: "菩萨护佑";
+      position: absolute;
+      right: 7vw;
+      bottom: 14vh;
+      font-size: clamp(30px, 5.6vw, 64px);
+      letter-spacing: 6px;
+      font-family: "STKaiti", "KaiTi", serif;
+      color: rgba(255, 225, 160, 0.18);
+      text-shadow: 0 0 18px rgba(255, 196, 120, 0.24);
+      transform: rotate(8deg);
+    }
+
+    .buddha-glow {
+      position: fixed;
+      left: 50%;
+      bottom: -16px;
+      width: min(560px, 82vw);
+      height: min(360px, 40vh);
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.36;
+      background:
+        radial-gradient(ellipse at 50% 84%, rgba(255, 206, 121, 0.35) 0 24%, transparent 60%),
+        radial-gradient(ellipse at 50% 80%, rgba(255, 227, 170, 0.22) 0 35%, transparent 72%),
+        radial-gradient(circle at 50% 30%, rgba(255, 198, 109, 0.16) 0 13%, transparent 42%);
+      filter: blur(0.4px);
+    }
+
+    .ceremony-mask {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(30, 12, 8, 0.62);
+      backdrop-filter: blur(3px);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .ceremony-mask.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .ceremony-card {
+      width: min(680px, 92vw);
+      padding: 22px 18px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 224, 160, 0.5);
+      background:
+        linear-gradient(145deg, rgba(128, 46, 31, 0.88), rgba(64, 22, 13, 0.92));
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45), inset 0 0 24px rgba(255, 213, 141, 0.12);
+      text-align: center;
+      transform: translateY(10px) scale(0.96);
+      transition: transform 0.35s ease;
+    }
+
+    .ceremony-mask.show .ceremony-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .ceremony-title {
+      margin: 0 0 8px;
+      font-size: clamp(22px, 4.2vw, 34px);
+      font-family: "STKaiti", "KaiTi", serif;
+      color: #ffe5b0;
+      letter-spacing: 3px;
+      text-shadow: 0 0 12px rgba(255, 209, 127, 0.45);
+    }
+
+    .ceremony-text {
+      margin: 0 0 16px;
+      font-size: clamp(14px, 2.8vw, 19px);
+      line-height: 1.7;
+      color: #fff1d0;
+      white-space: pre-line;
+    }
+
+    .ceremony-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 9px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #4a1f0e;
+      background: linear-gradient(90deg, #f8dfab, #e5b56c);
+      cursor: pointer;
+    }
+
+    .container {
+      position: relative;
+      width: min(960px, 94vw);
+      margin: 4vh auto;
+      padding: 28px 22px 28px;
+      border-radius: 24px;
+      background:
+        repeating-linear-gradient(45deg, rgba(255, 227, 173, 0.025) 0 12px, transparent 12px 24px),
+        linear-gradient(165deg, rgba(125, 43, 30, 0.62), rgba(60, 20, 12, 0.82));
+      border: 1px solid rgba(255, 218, 146, 0.35);
+      box-shadow: 0 0 34px rgba(255, 193, 122, 0.22), inset 0 0 36px rgba(255, 238, 205, 0.08);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.12;
+      background-image: radial-gradient(circle at 20% 20%, #ffe0a3 2px, transparent 2px);
+      background-size: 22px 22px;
+      mix-blend-mode: screen;
+    }
+
+    .lotus-halo {
+      position: absolute;
+      left: 50%;
+      top: 40%;
+      width: min(420px, 78vw);
+      aspect-ratio: 1 / 1;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      pointer-events: none;
+      background:
+        radial-gradient(circle, rgba(255, 235, 178, 0.28) 0 26%, transparent 58%),
+        conic-gradient(from 0deg, rgba(255, 208, 120, 0.26), rgba(255, 245, 218, 0.08), rgba(184, 75, 49, 0.2), rgba(255, 208, 120, 0.26));
+      filter: blur(0.2px);
+      animation: lotusBreath 3.8s ease-in-out infinite;
+    }
+
+    .title {
+      margin: 8px 0 8px;
+      text-align: center;
+      font-size: clamp(24px, 4vw, 42px);
+      letter-spacing: 2px;
+      font-family: "STKaiti", "KaiTi", "Microsoft YaHei", serif;
+      text-shadow: 0 0 12px rgba(255, 220, 149, 0.72);
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      text-align: center;
+      color: #ffeec6;
+      opacity: 0.9;
+      font-size: 15px;
+    }
+
+    .mystic-meta {
+      margin: -12px auto 18px;
+      width: fit-content;
+      max-width: 92%;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #ffefcf;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 228, 167, 0.35);
+      background: rgba(255, 219, 151, 0.1);
+      box-shadow: 0 0 14px rgba(255, 202, 122, 0.22);
+    }
+
+    .mystic-note {
+      margin: -8px auto 16px;
+      width: fit-content;
+      max-width: 94%;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #fff4d8;
+      padding: 6px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 231, 176, 0.28);
+      background: linear-gradient(90deg, rgba(255, 210, 121, 0.14), rgba(185, 92, 60, 0.14));
+    }
+
+    .jackpot-ring {
+      position: relative;
+      margin: 6px auto 18px;
+      width: min(360px, 72vw);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(255, 242, 206, 0.18) 0 36%, transparent 52%),
+        conic-gradient(from 90deg, #bf7a2f, #f5dda6, #8f2f20, #eec16d, #b45b38, #bf7a2f);
+      box-shadow: 0 0 32px rgba(245, 198, 116, 0.45);
+      display: grid;
+      place-items: center;
+    }
+
+    .jackpot-ring::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, rgba(42, 18, 9, 0.95), rgba(68, 24, 14, 0.9));
+      border: 1px solid rgba(255, 226, 160, 0.52);
+      box-shadow: inset 0 0 20px rgba(255, 209, 133, 0.32);
+    }
+
+    .core {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      width: 72%;
+    }
+
+    .label {
+      margin: 0;
+      font-size: 13px;
+      color: #ffe8ab;
+      opacity: 0.9;
+    }
+
+    .value {
+      margin: 6px 0 10px;
+      font-size: clamp(34px, 6vw, 56px);
+      font-weight: 800;
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 0 16px rgba(255, 210, 94, 0.75);
+    }
+
+    .number {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 46px);
+      font-weight: 700;
+      color: #ffd89a;
+      text-shadow: 0 0 16px rgba(255, 204, 112, 0.72);
+    }
+
+    .controls {
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      color: #3f1708;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 12px 28px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #f3d18a, #d9a554, #af4b33);
+      box-shadow: 0 8px 20px rgba(237, 174, 101, 0.42);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 14px 26px rgba(255, 186, 111, 0.56);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.7;
+    }
+
+    .hint {
+      margin: 0;
+      font-size: 13px;
+      color: rgba(255, 235, 201, 0.9);
+      text-align: center;
+    }
+
+    .burst .jackpot-ring {
+      animation: jackpotPulse 0.85s ease-out;
+      transform: scale(1.04);
+      box-shadow: 0 0 48px rgba(255, 222, 143, 0.88);
+    }
+
+    .spark {
+      position: absolute;
+      left: 50%;
+      top: 56%;
+      width: 8px;
+      height: 14px;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transform-origin: center;
+      animation: confetti 1300ms ease-out forwards;
+    }
+
+    #starCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    @keyframes float {
+      0% { transform: translate(-2%, -1%) scale(1); }
+      100% { transform: translate(3%, 2%) scale(1.08); }
+    }
+
+    @keyframes cloudDrift {
+      0% { transform: translateX(-2%) translateY(0); }
+      100% { transform: translateX(2%) translateY(1.5%); }
+    }
+
+    @keyframes lotusBreath {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+      50% { transform: translate(-50%, -50%) scale(1.06); opacity: 1; }
+    }
+
+    @keyframes jackpotPulse {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.06); }
+      100% { transform: scale(1.04); }
+    }
+
+    @keyframes confetti {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(0deg) scale(0.8);
+      }
+      8% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1.15);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        overflow-y: auto;
+      }
+
+      .container {
+        width: min(96vw, 560px);
+        margin: max(12px, env(safe-area-inset-top)) auto max(12px, env(safe-area-inset-bottom));
+        padding: 18px 14px calc(16px + env(safe-area-inset-bottom));
+        border-radius: 18px;
+      }
+
+      .title {
+        margin-top: 2px;
+        margin-bottom: 6px;
+        letter-spacing: 1px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+
+      .blessing-bg::before,
+      .blessing-bg::after {
+        letter-spacing: 3px;
+        opacity: 0.72;
+      }
+
+      .blessing-bg::before {
+        left: 4vw;
+        top: 8vh;
+      }
+
+      .blessing-bg::after {
+        right: 4vw;
+        bottom: 11vh;
+      }
+
+      .buddha-glow {
+        width: min(480px, 94vw);
+        height: min(320px, 34vh);
+      }
+
+      .ceremony-card {
+        padding: 18px 14px 14px;
+      }
+
+      .ceremony-text {
+        line-height: 1.6;
+      }
+
+      .mystic-meta {
+        font-size: 12px;
+        margin-top: -8px;
+        margin-bottom: 12px;
+        border-radius: 14px;
+      }
+
+      .mystic-note {
+        font-size: 12px;
+        margin-top: -4px;
+        margin-bottom: 10px;
+        padding: 6px 10px;
+      }
+
+      .jackpot-ring {
+        width: min(320px, 82vw);
+        margin: 4px auto 14px;
+      }
+
+      .jackpot-ring::before {
+        inset: 14px;
+      }
+
+      .label {
+        font-size: 12px;
+      }
+
+      .value {
+        margin: 4px 0 8px;
+        font-size: clamp(30px, 9vw, 42px);
+      }
+
+      .number {
+        font-size: clamp(24px, 8vw, 38px);
+      }
+
+      button {
+        width: min(88vw, 320px);
+        min-height: 46px;
+        font-size: 16px;
+        padding: 10px 20px;
+      }
+
+      .hint {
+        width: 92%;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="starCanvas"></canvas>
+  <div class="aurora"></div>
+  <div class="zen-clouds"></div>
+  <div class="blessing-bg"></div>
+  <div class="buddha-glow"></div>
+  <div id="ceremonyMask" class="ceremony-mask">
+    <div class="ceremony-card">
+      <h3 class="ceremony-title">开运开幕式</h3>
+      <p id="ceremonyText" class="ceremony-text">福缘将至，正在点亮天机...</p>
+      <button id="ceremonyBtn" class="ceremony-btn" type="button">接福入场</button>
+    </div>
+  </div>
+
+  <main class="container" id="stage">
+    <div class="lotus-halo"></div>
+    <h1 class="title">禅运金轮 · 今日幸运开奖台</h1>
+    <p class="subtitle" id="dateText">正在对齐天机...</p>
+    <p class="mystic-meta" id="mysticText">正在推演干支与飞星...</p>
+    <p class="mystic-note" id="omenText">正在卜算今日宜忌...</p>
+
+    <section class="jackpot-ring">
+      <div class="core">
+        <p class="label">今日幸运生肖</p>
+        <h2 class="value" id="zodiacValue">---</h2>
+        <p class="label">幸运数字 (1-50)</p>
+        <p class="number" id="numberValue">--</p>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button id="drawBtn">立即开奖</button>
+    </div>
+  </main>
+
+  <script>
+    const zodiacList = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
+    const zodiacValue = document.getElementById("zodiacValue");
+    const numberValue = document.getElementById("numberValue");
+    const drawBtn = document.getElementById("drawBtn");
+    const stage = document.getElementById("stage");
+    const dateText = document.getElementById("dateText");
+    const mysticText = document.getElementById("mysticText");
+    const omenText = document.getElementById("omenText");
+    const ceremonyMask = document.getElementById("ceremonyMask");
+    const ceremonyText = document.getElementById("ceremonyText");
+    const ceremonyBtn = document.getElementById("ceremonyBtn");
+    const soundEnabled = true;
+    const vibrationEnabled = true;
+    let audioCtx = null;
+    const heavenlyStems = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+    const earthlyBranches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+    const fiveElements = ["木", "火", "土", "金", "水"];
+    const zodiacElements = ["水", "土", "木", "木", "土", "火", "火", "土", "金", "金", "土", "水"];
+    const triadGroups = [
+      [0, 4, 8],   // 申子辰
+      [2, 6, 10],  // 寅午戌
+      [5, 9, 1],   // 巳酉丑
+      [11, 3, 7]   // 亥卯未
+    ];
+
+    function formatDateKey(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    // 玄学混合算法：日干支 + 九宫飞星 + 五行生克 + 哈希雪崩。
+    // 特点：同一天固定，隔天无明显规律，且允许连续两天出现同生肖/同数字。
+    function dailyFortune(date = new Date()) {
+      const dateKey = formatDateKey(date);
+      const dayNo = getDaySerial(date);
+      const gz = getGanzhi(dayNo);
+      const jiuGong = ((dayNo + 8) % 9) + 1;
+      const dayElement = stemToElement(gz.stemIndex);
+      const pepperA = "XYZW_LUCK_CORE::A9*72#Q";
+      const pepperB = "FORTUNE_NO_PATTERN::B4!19@M";
+      const fengShuiKey = `${dateKey}|${gz.name}|${dayElement}|${jiuGong}`;
+      const seedA = hash32(`${fengShuiKey}|${pepperA}`);
+      const seedB = hash32(`${pepperB}|${fengShuiKey}|${seedA}`);
+      const seedC = mix32(seedA ^ seedB ^ 0x9e3779b9);
+
+      let bestIndex = 0;
+      let bestScore = -1;
+      for (let i = 0; i < 12; i++) {
+        let score = mix32(seedA ^ (i * 0x45d9f3b) ^ 0x85ebca6b);
+
+        // 五行同气加成（风水味）。
+        if (zodiacElements[i] === dayElement) score = (score + 0x2f1bbcd) >>> 0;
+
+        // 三合、六合、相冲做偏置。
+        if (isTriadMate(i, gz.branchIndex)) score = (score + 0x17a4c31) >>> 0;
+        if (isLiuHeMate(i, gz.branchIndex)) score = (score + 0x0f3d9a7) >>> 0;
+        if (isClash(i, gz.branchIndex)) score = (score - 0x0937bd1) >>> 0;
+
+        // 九宫数参与扰动，不走固定轮转。
+        score ^= Math.imul(jiuGong, 0x27d4eb2d) >>> 0;
+        score = mix32(score ^ seedB ^ seedC);
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestIndex = i;
+        }
+      }
+
+      const baseNumber = (mix32(seedB ^ seedC ^ Math.imul(bestIndex + 1, 0x9e3779b1)) % 50) + 1;
+      const fengShuiPool = [6, 8, 9, 16, 18, 19, 26, 28, 29, 36, 38, 39, 46, 48, 49];
+      const pickPool = (mix32(seedA ^ seedC ^ jiuGong) & 3) === 0;
+      const luckyNumber = pickPool
+        ? fengShuiPool[mix32(seedA ^ seedB ^ jiuGong) % fengShuiPool.length]
+        : baseNumber;
+      const yiPool = ["宜出击", "宜抽卡", "宜团战", "宜冲榜", "宜开宝箱", "宜结盟", "宜养精蓄锐", "宜早睡补运", "宜收菜", "宜捡漏"];
+      const jiPool = ["忌上头", "忌梭哈", "忌夜战过晚", "忌连败硬冲", "忌口嗨", "忌赌气换阵", "忌冲动消费", "忌分神", "忌逞强", "忌裸奔开团"];
+      const yi = yiPool[mix32(seedA ^ seedC ^ 0x13579bdf) % yiPool.length];
+      const ji = jiPool[mix32(seedB ^ seedC ^ 0x2468ace0) % jiPool.length];
+
+      return {
+        dateKey,
+        zodiac: zodiacList[bestIndex],
+        number: luckyNumber,
+        ganzhi: gz.name,
+        element: dayElement,
+        jiuGong,
+        omen: buildOmen(bestIndex, gz.branchIndex, dayElement),
+        yi,
+        ji
+      };
+    }
+
+    function buildOmen(zodiacIndex, branchIndex, dayElement) {
+      if (zodiacElements[zodiacIndex] === dayElement) return "同气相生";
+      if (isTriadMate(zodiacIndex, branchIndex)) return "三合得势";
+      if (isLiuHeMate(zodiacIndex, branchIndex)) return "六合旺运";
+      return "飞星引运";
+    }
+
+    function getDaySerial(date) {
+      const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      return Math.floor(localMidnight.getTime() / 86400000);
+    }
+
+    function getGanzhi(dayNo) {
+      // 1984-02-02 常用作甲子锚点，做静态页近似推算足够。
+      const anchor = Math.floor(new Date(1984, 1, 2).getTime() / 86400000);
+      const cycle = ((dayNo - anchor) % 60 + 60) % 60;
+      const stemIndex = cycle % 10;
+      const branchIndex = cycle % 12;
+      return {
+        stemIndex,
+        branchIndex,
+        name: `${heavenlyStems[stemIndex]}${earthlyBranches[branchIndex]}`
+      };
+    }
+
+    function stemToElement(stemIndex) {
+      return fiveElements[Math.floor(stemIndex / 2)];
+    }
+
+    function isTriadMate(zodiacIndex, dayBranchIndex) {
+      for (const group of triadGroups) {
+        if (group.includes(dayBranchIndex) && group.includes(zodiacIndex)) return true;
+      }
+      return false;
+    }
+
+    function isLiuHeMate(zodiacIndex, dayBranchIndex) {
+      const pairMap = [1, 0, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+      return pairMap[zodiacIndex] === dayBranchIndex;
+    }
+
+    function isClash(zodiacIndex, dayBranchIndex) {
+      return ((zodiacIndex + 6) % 12) === dayBranchIndex;
+    }
+
+    function hash32(text) {
+      let hash = 0x811c9dc5;
+      for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 0x01000193);
+      }
+      return mix32(hash >>> 0);
+    }
+
+    function mix32(x) {
+      x = Math.imul(x ^ (x >>> 16), 0x7feb352d);
+      x = Math.imul(x ^ (x >>> 15), 0x846ca68b);
+      return (x ^ (x >>> 16)) >>> 0;
+    }
+
+    function animateReveal(result) {
+      drawBtn.disabled = true;
+      playDrawSound();
+      fireVibration([20, 35, 20]);
+      let frame = 0;
+
+      const timer = setInterval(() => {
+        frame++;
+        zodiacValue.textContent = zodiacList[Math.floor(Math.random() * zodiacList.length)];
+        numberValue.textContent = String(1 + Math.floor(Math.random() * 50)).padStart(2, "0");
+        if (frame >= 18) {
+          clearInterval(timer);
+          zodiacValue.textContent = result.zodiac;
+          numberValue.textContent = String(result.number).padStart(2, "0");
+          stage.classList.add("burst");
+          launchConfetti(88);
+          playWinSound();
+          fireVibration([50, 40, 100]);
+          setTimeout(() => stage.classList.remove("burst"), 1300);
+          setTimeout(() => (drawBtn.disabled = false), 650);
+        }
+      }, 90);
+    }
+
+    function getAudioCtx() {
+      if (!soundEnabled) return null;
+      if (!audioCtx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        audioCtx = new Ctx();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function beep(freq, duration, type = "sine", gainValue = 0.06) {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(gainValue, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    }
+
+    function playDrawSound() {
+      if (!soundEnabled) return;
+      beep(620, 0.09, "triangle", 0.05);
+      setTimeout(() => beep(780, 0.1, "triangle", 0.05), 80);
+    }
+
+    function playWinSound() {
+      if (!soundEnabled) return;
+      beep(660, 0.13, "sine", 0.06);
+      setTimeout(() => beep(880, 0.14, "sine", 0.06), 120);
+      setTimeout(() => beep(1180, 0.16, "sine", 0.07), 240);
+    }
+
+    function fireVibration(pattern) {
+      if (!vibrationEnabled) return;
+      if (typeof navigator.vibrate === "function") {
+        navigator.vibrate(pattern);
+      }
+    }
+
+    function launchConfetti(count) {
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement("span");
+        piece.className = "spark";
+        piece.style.background = ["#ffe16e", "#ff84b8", "#63efff", "#ffffff"][i % 4];
+        piece.style.setProperty("--x", `${(Math.random() - 0.5) * 90}vw`);
+        piece.style.setProperty("--y", `${(-20 - Math.random() * 65)}vh`);
+        piece.style.setProperty("--r", `${Math.random() * 560 - 280}deg`);
+        piece.style.animationDelay = `${Math.random() * 220}ms`;
+        stage.appendChild(piece);
+        setTimeout(() => piece.remove(), 1500);
+      }
+    }
+
+    function initStars() {
+      const canvas = document.getElementById("starCanvas");
+      const ctx = canvas.getContext("2d");
+      const stars = [];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars.length = 0;
+        const count = Math.max(80, Math.floor((canvas.width * canvas.height) / 12000));
+        for (let i = 0; i < count; i++) {
+          stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.9 + 0.3,
+            alpha: Math.random() * 0.8 + 0.2,
+            speed: Math.random() * 0.015 + 0.005
+          });
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const s of stars) {
+          s.alpha += (Math.random() - 0.5) * s.speed;
+          if (s.alpha < 0.2) s.alpha = 0.2;
+          if (s.alpha > 1) s.alpha = 1;
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,225,170,${s.alpha})`;
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+
+      resize();
+      draw();
+      window.addEventListener("resize", resize);
+    }
+
+    async function detectProvinceByIP() {
+      const apiList = [
+        "https://ipapi.co/json/",
+        "https://ipwho.is/",
+        "https://ipinfo.io/json"
+      ];
+
+      for (const url of apiList) {
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 2600);
+          const resp = await fetch(url, { signal: controller.signal });
+          clearTimeout(timer);
+          if (!resp.ok) continue;
+          const data = await resp.json();
+          const region = (data.region || data.regionName || data.province || "").toString();
+          if (region) return region;
+        } catch (_) {
+          // 接口失败直接尝试下一个，不中断主流程
+        }
+      }
+      return "";
+    }
+
+    function makeCeremonyText(province, result) {
+      const luckyNum = String(result.number).padStart(2, "0");
+      if (province.includes("江西") || province.toLowerCase().includes("jiangxi")) {
+        return `方小慧今日福运大开，紫气东来。\n幸运生肖：${result.zodiac}，幸运数字：${luckyNum}。\n运气：吉，诸事顺遂。`;
+      }
+      if (province.includes("广东") || province.toLowerCase().includes("guangdong")) {
+        return `方小慧今日鸿运照身，财星拱照。\n幸运生肖：${result.zodiac}，幸运数字：${luckyNum}。\n运气：吉，万事有成。`;
+      }
+      return "";
+    }
+
+    async function initRegionalCeremony(result) {
+      const province = await detectProvinceByIP();
+      const text = makeCeremonyText(province, result);
+      if (!text) return;
+      ceremonyText.textContent = text;
+      ceremonyMask.classList.add("show");
+      fireVibration([16, 20, 16]);
+      setTimeout(() => ceremonyMask.classList.remove("show"), 6800);
+    }
+
+    const todayResult = dailyFortune();
+    dateText.textContent = `今日日期：${todayResult.dateKey}（同一天开奖结果固定）`;
+    mysticText.textContent = `日干支 ${todayResult.ganzhi} · 五行 ${todayResult.element} · 九宫 ${todayResult.jiuGong} · ${todayResult.omen}`;
+    omenText.textContent = `${todayResult.yi} · ${todayResult.ji}`;
+    zodiacValue.textContent = todayResult.zodiac;
+    numberValue.textContent = String(todayResult.number).padStart(2, "0");
+
+    drawBtn.addEventListener("click", () => animateReveal(todayResult));
+    ceremonyBtn.addEventListener("click", () => ceremonyMask.classList.remove("show"));
+    initStars();
+    initRegionalCeremony(todayResult);
+  </script>
+</body>
+</html>
